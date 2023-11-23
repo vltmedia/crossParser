@@ -1,0 +1,9 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#162963",
+        "titleBar.activeBackground": "#1F3A8A",
+        "titleBar.activeForeground": "#F8FAFE"
+    },
+    "workbench.colorTheme": "Community Material Theme Ocean",
+    "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}${separator}${appName}${separator}[Branch: master]"
+}
