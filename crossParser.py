@@ -28,14 +28,20 @@ def parserToJSON(parser, className = "Options"):
                 
                 if defaultVal == "inf" or defaultVal == float("inf"):
                     defaultVal = "99999"
+                if defaultVal == None:
+                    defaultVal = "0"
                 typeText = "int"
             elif item.type == float:
                 defaultVal = item.default or defaultVal == float("inf")
                 if defaultVal == "inf":
                     defaultVal = "99999"
+                if defaultVal == None:
+                    defaultVal = "0"
                 typeText = "float"
             elif item.type == str:
                 defaultVal = f"\"{item.default}\""
+                if item.default == None or item.default == "None":
+                    defaultVal = "\"\""
                 typeText = "string"
             if item.help != None:
                 help_ = f"\"{item.help}\""
@@ -61,6 +67,8 @@ def parserToCSharpClass(parser, className = "Options"):
     classes = ["public class "+className+" {", "", ""]
     optionsJson = parserToJSON(parser, className)
     for item in optionsJson["options"]:
+        if item['type'] == "float":
+            item['default'] = str(item['default'])+"f"
         outText = f"public {item['type']} {item['name'].replace(' ', '_')} = {item['default']};"
         classes.append(outText)
     classes.append("")  
