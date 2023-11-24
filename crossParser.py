@@ -67,6 +67,35 @@ def parserToJSON(parser, className = "Options"):
     return outputJSON
 
 
+def parserToCSharpClass(parser, className = "Options", addUsing = True):
+    classes = []
+    if addUsing:
+        classes = ["using System;"]
+    classesadd = ["","","[System.Serializable]","public class "+className+" {", "", ""]
+    for item in classesadd:
+        classes.append(item)
+    optionsJson = parserToJSON(parser, className)
+    for item in optionsJson["options"]:
+        if item['type'] == "float":
+            item['default'] = str(item['default'])+"f"
+        outText = f"public {item['type']} {item['name'].replace(' ', '_')} = {item['default']};"
+        classes.append(outText)
+    classes.append("")  
+    classes.append("")  
+    classes.append("// -------------- Help --------------")  
+    classes.append("")  
+        # //
+    for item in optionsJson["options"]:
+        if item['help'] != ""and item['help'] != None:
+            outText = f"public string {item['name'].replace(' ', '_')}_Help = {item['help']};"
+            classes.append(outText)
+    classes.append("")  
+    classes.append("")  
+    classes.append("}")  
+    outData = "\n".join(classes)
+    return outData
+
+
 
 def generateUAIForm(parser, className = "ImageForm"):
     from parsers.uai import getLineEdit, getSpinbox, getDoubleSpinbox, getToggle, getDropDown
@@ -82,19 +111,23 @@ def generateUAIForm(parser, className = "ImageForm"):
 "using uai.networking;",
 "using uai.ui;",
 "using UnityEngine;",
-"using UnityEngine.UI;","","","namespace uai.runners.ai{",   "public class "+className+" : ImageRequestForm{", "", "" ]
+"using UnityEngine.UI;","","","namespace uai.runners.ai{", "" , "public class "+className+f"Form : BaseRunner<{className.replace(' ', ('_'))}Request, MultipleMediaRequest>{{", "", "" ]
     optionsJson = parserToJSON(parser, className)
     for item in optionsJson["options"]:
         outText = ""
+        
+        nameText = item['name'].replace(' ', '_')
+        if nameText == "name":
+            nameText = "name_"
         if item['type'] == "float":
             item['default'] = str(item['default'])+"f"
-            outText = getDoubleSpinbox(item['name'].replace(' ', '_'))
+            outText = getDoubleSpinbox(nameText)
         if item['type'] == "int":
-            outText = getSpinbox(item['name'].replace(' ', '_'))
+            outText = getSpinbox(nameText)
         if item['type'] == "string" or  item['type'] == "str"   :
-            outText = getLineEdit(item['name'].replace(' ', '_'))
+            outText = getLineEdit(nameText)
         if item['type'] == "bool" :
-            outText = getToggle(item['name'].replace(' ', '_'))
+            outText = getToggle(nameText)
         classes.append(outText)
     classes.append("""
             void Start()
@@ -116,11 +149,24 @@ def generateUAIForm(parser, className = "ImageForm"):
             base.SetRequest();
 """)
     classes.append(f"runner.SetModulePath(\"{className}\");")
+    for item in optionsJson["options"]:
+        classes.append("")
+        classes.append("try")
+        classes.append("{")
+        nameText = item['name'].replace(' ', '_')
+        if nameText == "name":
+            nameText = "name_"
+        if item['type'] == "bool" or item['type'] == bool   :
+            classes.append(f"request.{item['name'].replace(' ', '_')} = {nameText.replace(' ', '_')}.isOn;")
+        else:
+            classes.append(f"request.{item['name'].replace(' ', '_')} = {nameText.replace(' ', '_')}.value;")
+        classes.append("}")
+        classes.append("catch")
+        classes.append("{")
+        classes.append("}")
+        classes.append("")
+        
     classes.append("""
-
-            request.input = Convert.ToBase64String(File.ReadAllBytes(loadedPath));
-            request.submode = "base64";
-            request.mode = "all";
         }
         public override void Finished()
         {
@@ -134,7 +180,8 @@ def generateUAIForm(parser, className = "ImageForm"):
     classes.append("")  
     classes.append("}") 
     classes.append("")  
-     
+    classes.append(parserToCSharpClass(parser, className = f"{className.replace(' ', ('_'))}Request", addUsing= False))  
+    classes.append("")  
     classes.append("}")  
     outData = "\n".join(classes)
     return outData
@@ -168,30 +215,6 @@ def generateUnityForm(parser, className = "ImageForm"):
     return outData
         
         
-def parserToCSharpClass(parser, className = "Options"):
-    classes = ["public class "+className+" {", "", ""]
-    optionsJson = parserToJSON(parser, className)
-    for item in optionsJson["options"]:
-        if item['type'] == "float":
-            item['default'] = str(item['default'])+"f"
-        outText = f"public {item['type']} {item['name'].replace(' ', '_')} = {item['default']};"
-        classes.append(outText)
-    classes.append("")  
-    classes.append("")  
-    classes.append("// -------------- Help --------------")  
-    classes.append("")  
-        # //
-    for item in optionsJson["options"]:
-        if item['help'] != ""and item['help'] != None:
-            outText = f"public string {item['name'].replace(' ', '_')}_Help = {item['help']};"
-            classes.append(outText)
-    classes.append("")  
-    classes.append("")  
-    classes.append("}")  
-    outData = "\n".join(classes)
-    return outData
-
-
 def parserToHTMLForm(parser, className = "Options"):
     from parsers.html import generateHTMLForm
     optionsJson = parserToJSON(parser, className)
