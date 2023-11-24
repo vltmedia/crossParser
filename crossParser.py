@@ -8,6 +8,10 @@ This is useful for creating a GUI for a python script.
 
 import argparse 
 
+def sanitizeText (text):
+    return text.replace("\"", "\\\"")
+
+
 def parserToJSON(parser, className = "Options"):
     outputJSON = {"className": className, "options": []}
     classes = []
@@ -44,7 +48,7 @@ def parserToJSON(parser, className = "Options"):
                     defaultVal = "\"\""
                 typeText = "string"
             if item.help != None:
-                help_ = f"\"{item.help}\""
+                help_ = f"\"{sanitizeText(item.help)}\""
             required = False
             try:
                 required = item.required
@@ -210,6 +214,50 @@ def parserToJavascriptClass(parser, className = "Options"):
     classes.append("")  
     classes.append("")  
     classes.append("}")  
+                
+    outData = "\n".join(classes)
+    return outData
+
+
+
+def parserToMaterialUIJavascriptClass(parser, className = "Options"):
+    classes = ["export class "+className+" {", "", "", "constructor() {"]
+    
+    classes.append("""       
+           return (
+       <Card  className="w-auto" color="white" shadow={true} children={
+      <div className="p-10">
+""")
+          
+    classes.append("""       
+        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+          <div className="mb-1 flex flex-col gap-6">
+""")
+          
+
+
+    classes.append("<Typography variant=\"h6\" color=\"blue-gray\" className=\"-mb-3\">")  
+    classes.append("              "+ className)  
+    classes.append("            </Typography>")  
+    
+
+    classes.append("")  
+    classes.append("")  
+    classes.append("// -------------- Help --------------")  
+    
+    classes.append("")  
+        
+    classes.append("")  
+    classes.append("")  
+    classes.append("}")  
+    classes.append("")  
+    classes.append("")  
+    classes.append("""
+                   </div>
+
+       }/>
+                   );
+  }""")  
                 
     outData = "\n".join(classes)
     return outData
