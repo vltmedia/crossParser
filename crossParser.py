@@ -63,6 +63,107 @@ def parserToJSON(parser, className = "Options"):
     return outputJSON
 
 
+
+def generateUAIForm(parser, className = "ImageForm"):
+    from parsers.uai import getLineEdit, getSpinbox, getDoubleSpinbox, getToggle, getDropDown
+    classes = ["using System;",
+"using System.Collections.Generic;",
+"using System.Linq;",
+"using System.Text;",
+"using System.Threading.Tasks;",
+"using TMPro;",
+"using uai.ai;",
+"using uai.common;",
+"using uai.common.objects;",
+"using uai.networking;",
+"using uai.ui;",
+"using UnityEngine;",
+"using UnityEngine.UI;","","","namespace uai.runners.ai{",   "public class "+className+" : ImageRequestForm{", "", "" ]
+    optionsJson = parserToJSON(parser, className)
+    for item in optionsJson["options"]:
+        outText = ""
+        if item['type'] == "float":
+            item['default'] = str(item['default'])+"f"
+            outText = getDoubleSpinbox(item['name'].replace(' ', '_'))
+        if item['type'] == "int":
+            outText = getSpinbox(item['name'].replace(' ', '_'))
+        if item['type'] == "string" or  item['type'] == "str"   :
+            outText = getLineEdit(item['name'].replace(' ', '_'))
+        if item['type'] == "bool" :
+            outText = getToggle(item['name'].replace(' ', '_'))
+        classes.append(outText)
+    classes.append("""
+            void Start()
+        {
+            runnerType = RunnerType.Python;
+            onOpenFile.AddListener(OnImportImage);
+        }
+
+        private void OnImportImage(bool arg0, string filepath)
+        {
+        
+            GameState.ShowMediaFilepath(filepath);
+        }
+
+""")
+    classes.append("""
+        public override void SetRequest()
+        {
+            base.SetRequest();
+""")
+    classes.append(f"runner.SetModulePath(\"{className}\");")
+    classes.append("""
+
+            request.input = Convert.ToBase64String(File.ReadAllBytes(loadedPath));
+            request.submode = "base64";
+            request.mode = "all";
+        }
+        public override void Finished()
+        {
+            result = JsonUtility.FromJson<MultipleMediaRequest>(recievedStringData);
+            mediaCatalog.AddPack(result);
+            GameState.SetResultType("MultipleMediaRequest.Base64");
+            base.Finished();
+        }
+                """)  
+    classes.append("")  
+    classes.append("")  
+    classes.append("}") 
+    classes.append("")  
+     
+    classes.append("}")  
+    outData = "\n".join(classes)
+    return outData
+        
+
+def generateUnityForm(parser, className = "ImageForm"):
+    from parsers.uai import getTMP_InputField, getToggle, getDropDown
+    classes = ["using System;",
+"using System.Collections.Generic;",
+"using System.Text;",
+"using TMPro;",
+"using UnityEngine;",
+"using UnityEngine.UI;", "","","public class "+className+" : MonoBehaviour{", "", ""]
+    optionsJson = parserToJSON(parser, className)
+    for item in optionsJson["options"]:
+        outText = getTMP_InputField(item['name'].replace(' ', '_'))
+        if item['type'] == "float":
+            item['default'] = str(item['default'])+"f"
+            outText = getTMP_InputField(item['name'].replace(' ', '_'))
+        if item['type'] == "int":
+            outText = getTMP_InputField(item['name'].replace(' ', '_'))
+        if item['type'] == "string" or  item['type'] == "str"   :
+            outText = getTMP_InputField(item['name'].replace(' ', '_'))
+        if item['type'] == "bool" :
+            outText = getToggle(item['name'].replace(' ', '_'))
+        classes.append(outText)
+    classes.append("")  
+    classes.append("")  
+    classes.append("}")  
+    outData = "\n".join(classes)
+    return outData
+        
+        
 def parserToCSharpClass(parser, className = "Options"):
     classes = ["public class "+className+" {", "", ""]
     optionsJson = parserToJSON(parser, className)
