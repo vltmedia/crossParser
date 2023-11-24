@@ -45,8 +45,8 @@ open(f"output\{className}.py", "w").write(crossParser.parserToPythonClass(parser
 open(f"output\{className}_uai.cs", "w").write(crossParser.generateUAIForm(parser, className = className))
 open(f"output\{className}_unity.cs", "w").write(crossParser.generateUnityForm(parser, className = className))
 open(f"output\{className}_react.js", "w").write(crossParser.parserToReactTailwindMaterialComponent(parser, className = className))
-    open(f"output\{className}_page_.html", "w").write(crossParser.parserToHTMLFormPage(parser, className = className))
-    open(f"output\{className}_form_.html", "w").write(crossParser.parserToHTMLForm(parser, className = className))
+open(f"output\{className}_page_.html", "w").write(crossParser.parserToHTMLFormPage(parser, className = className))
+open(f"output\{className}_form_.html", "w").write(crossParser.parserToHTMLForm(parser, className = className))
 ```
 
 # Example Output:
