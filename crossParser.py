@@ -192,6 +192,25 @@ def parserToCSharpClass(parser, className = "Options"):
     return outData
 
 
+def parserToHTMLForm(parser, className = "Options"):
+    from parsers.html import generateHTMLForm
+    optionsJson = parserToJSON(parser, className)
+    return generateHTMLForm(className, optionsJson['options'])
+
+
+def parserToHTMLFormPage(parser, className = "Options"):
+    from parsers.html import generateHTMLFormPage
+    optionsJson = parserToJSON(parser, className)
+    return generateHTMLFormPage(className, optionsJson['options'])
+
+
+
+def parserToReactTailwindMaterialComponent(parser, className = "Options"):
+    from parsers.react import generateReactJSComponent
+    optionsJson = parserToJSON(parser, className)
+    return generateReactJSComponent(className, optionsJson['options'])
+
+
 def parserToJavascriptClass(parser, className = "Options"):
     classes = ["export class "+className+" {", "", "", "constructor() {"]
     optionsJson = parserToJSON(parser, className)

@@ -1,9 +1,27 @@
 # Description:
-Parse a python argparse object into CSharp, Javascript, and Python classes.
+Parse a python argparse object into CSharp, Javascript,React component, HTML Form, and Python classes.
 This is useful for creating a GUI for a python script.
 
+# Generates:
+- CSharp Class
+- CSharp Unity Monobehavior Form
+- CSharp Unity UAI Form
+- Javascript Class
+- Javascript React Tailwind Material UI Component
+- Python Class
+- HTML Form
+- HTML Form Page
+
 # Requirements:
+### Install/Dev
 - Python 3.6+
+
+### React Tailwind Material UI Component
+To use the React component, you must install the following:
+[Installation of the module](https://www.material-tailwind.com/docs/react/guide/cra)
+```bash
+npm i @material-tailwind/react
+```
 
 # Usage:
 ```python
@@ -21,10 +39,14 @@ parser.add_argument('--input_nc', type=int, default=3, help='# of input image ch
 parser.add_argument('--output_nc', type=int, default=3, help='# of output image channels')
 
 import crossParser
-classString = crossParser.parserToCSharpClass(parser, className = "Options")
-open(f"output\Options.cs", "w").write(classString)
-open(f"output\Options.js", "w").write(parserToJavascriptClass(parser, className = "Options"))
-open(f"output\Options.py", "w").write(parserToPythonClass(parser, className = "Options"))
+open(f"output\{className}.cs", "w").write(crossParser.parserToCSharpClass(parser, className = className))
+open(f"output\{className}.js", "w").write(crossParser.parserToJavascriptClass(parser, className = className))
+open(f"output\{className}.py", "w").write(crossParser.parserToPythonClass(parser, className = className))
+open(f"output\{className}_uai.cs", "w").write(crossParser.generateUAIForm(parser, className = className))
+open(f"output\{className}_unity.cs", "w").write(crossParser.generateUnityForm(parser, className = className))
+open(f"output\{className}_react.js", "w").write(crossParser.parserToReactTailwindMaterialComponent(parser, className = className))
+    open(f"output\{className}_page_.html", "w").write(crossParser.parserToHTMLFormPage(parser, className = className))
+    open(f"output\{className}_form_.html", "w").write(crossParser.parserToHTMLForm(parser, className = className))
 ```
 
 # Example Output:
